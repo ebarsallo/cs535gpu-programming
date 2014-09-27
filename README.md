@@ -1,4 +1,4 @@
-cs535gpu-programming
+cs535 GPU-Programming
 ====================
 
-CS535 GPU Programming Assignment
+Assignment #3
