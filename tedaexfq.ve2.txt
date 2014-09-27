@@ -1,0 +1,55 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   GL/glew.h
+#	new file:   GL/glew32.lib
+#	new file:   GL/glew32s.lib
+#	new file:   GL/glext.h
+#	new file:   GL/glui.h
+#	new file:   GL/glui32.lib
+#	new file:   GL/glui32d.lib
+#	new file:   GL/glut.h
+#	new file:   GL/glut32.lib
+#	new file:   GL/glxew.h
+#	new file:   GL/wglew.h
+#	new file:   GL/wglext.h
+#	new file:   GPGPU.cpp
+#	new file:   GPGPU.h
+#	new file:   Release/CL.read.1.tlog
+#	new file:   Release/CL.write.1.tlog
+#	new file:   Release/GPGPU.obj
+#	new file:   Release/cl.command.1.tlog
+#	new file:   Release/gpu-prog-proj.exe
+#	new file:   Release/gpu-prog-proj.exe.intermediate.manifest
+#	new file:   Release/gpu-prog-proj.lastbuildstate
+#	new file:   Release/gpu-prog-proj.pdb
+#	new file:   Release/link.command.1.tlog
+#	new file:   Release/link.read.1.tlog
+#	new file:   Release/link.write.1.tlog
+#	new file:   Release/main.obj
+#	new file:   Release/mt.command.1.tlog
+#	new file:   Release/mt.read.1.tlog
+#	new file:   Release/mt.write.1.tlog
+#	new file:   Release/myproject.log
+#	new file:   Release/vc100.pdb
+#	new file:   bin/fragment.glsl
+#	new file:   bin/glut32.dll
+#	new file:   bin/myproject.exe
+#	new file:   cs535-3.sln
+#	new file:   cs535-3.suo
+#	new file:   cs535-3.v11.suo
+#	new file:   fragment.glsl
+#	new file:   glut32.dll
+#	new file:   hola.txt
+#	new file:   main.cpp
+#	new file:   myproject.sdf
+#	new file:   myproject.suo
+#	new file:   myproject.vcxproj
+#	new file:   myproject.vcxproj.filters
+#	new file:   myproject.vcxproj.user
+#
+
