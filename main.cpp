@@ -173,7 +173,7 @@ main(int argc, char *argv[])
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(winWidth, winHeight);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-	winId = glutCreateWindow("MyWindow");
+	winId = glutCreateWindow("Water Simulation");
 
 	initialize();
 	
