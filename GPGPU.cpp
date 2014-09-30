@@ -49,8 +49,9 @@ GPGPU::GPGPU(int w, int h) : _initialized(0), _width(w), _height(h)
 	_initializedLoc = glGetUniformLocation(_programId, "initialized");
 
 	// gpu
-	_zerotimeLoc = glGetUniformLocation(_programId, "time");	
+	_timeLoc = glGetUniformLocation(_programId, "time");	
 	_ck_start = std::clock();
+	_wSizeLoc = glGetUniformLocation(_programId, "wSize");
 }
 
 /**
@@ -82,23 +83,26 @@ void GPGPU::update()
 	_initialized = 1;
 
 	// gpu: currenttime
-	_currenttime = (int)double(std::clock() - _ck_start) / (double)(CLOCKS_PER_SEC/1);
-	glUniform1f(_zerotimeLoc, _currenttime);
+	_currenttime = double(std::clock() - _ck_start ) / (double)(CLOCKS_PER_SEC/1000);
+	glUniform1f(_timeLoc, _currenttime);
 
 	// Sine params
-	//for (int i=0; i<10; i++) {
-		_sinParamALoc  = glGetUniformLocation(_programId, "gAi");
-		glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
+	_sinParamALoc  = glGetUniformLocation(_programId, "gAi");
+	glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
 
-		_sinParamDxLoc = glGetUniformLocation(_programId, "gDx");
-		glUniform1fv(_sinParamDxLoc, 4, sinParamDx);
+	_sinParamDxLoc = glGetUniformLocation(_programId, "gDx");
+	glUniform1fv(_sinParamDxLoc, 4, sinParamDx);
 
-		_sinParamDyLoc = glGetUniformLocation(_programId, "gDy");
-		glUniform1fv(_sinParamDyLoc, 4, sinParamDy);
+	_sinParamDyLoc = glGetUniformLocation(_programId, "gDy");
+	glUniform1fv(_sinParamDyLoc, 4, sinParamDy);
 
-		_sinParamWlLoc = glGetUniformLocation(_programId, "gwl");
-		glUniform1fv(_sinParamWlLoc, 4, sinParamWaveLength);
-	//}
+	_sinParamWlLoc = glGetUniformLocation(_programId, "gwl");
+	glUniform1fv(_sinParamWlLoc, 4, sinParamWaveLength);
+
+	_sinParamSpLoc = glGetUniformLocation(_programId, "gSp");
+	glUniform1fv(_sinParamSpLoc, 4, sinParamSpeed);
+
+	glUniform1i(_wSizeLoc, 1);
 
 //	std::cout << "\r\ntime: " << _currenttime;
 

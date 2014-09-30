@@ -17,6 +17,21 @@ static GLUI *glui;
 GPGPU  *gpgpu;
 
 /*****************************************************************************
+ * README  
+ * ---------------------------------------------------------------------------
+ * ebarsall
+ * Assignment #2: GPU Programming
+ *
+ * 
+ *****************************************************************************/
+
+std::vector<GLUI_Spinner*> wAmpSpinnerCtrl;
+std::vector<GLUI_Spinner*> wDxSpinnerCtrl;
+std::vector<GLUI_Spinner*> wDySpinnerCtrl;
+std::vector<GLUI_Spinner*> wSpeedSpinnerCtrl;
+std::vector<GLUI_Spinner*> wWlSpinnerCtrl;
+
+/*****************************************************************************
 *****************************************************************************/
 static void
 leftButtonDownCB(void)
@@ -150,12 +165,55 @@ void initialize()
 
 /*****************************************************************************
 *****************************************************************************/
+/**
+ * <summary>Handler of all the GUI events.</summary>
+ */
+void 
+GUICallbackHandler(int objID) 
+{
+	switch (objID) {
+	}
+}
+
 void MakeGUI()
 {
 	glui = GLUI_Master.create_glui("GUI", 0, 0, 0);
 	glui->add_statictext("GPGPU example");
 
 	glui->set_main_gfx_window(winId);
+
+	// gpu
+	int count = 4;
+	wAmpSpinnerCtrl.resize(count);
+	wDxSpinnerCtrl.resize(count);
+	wDySpinnerCtrl.resize(count);
+	wSpeedSpinnerCtrl.resize(count);
+	wWlSpinnerCtrl.resize(count);
+
+	for (int i=0; i<count; i++) {
+		glui->add_statictext ("Wave #" + i);
+
+		GLUI_Spinner *t1Spinner = glui->add_spinner("Amplitude",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t1Spinner->set_int_limits( 0, 10, GLUI_LIMIT_CLAMP );	
+			wAmpSpinnerCtrl[i] = t1Spinner;
+
+		GLUI_Spinner *t2Spinner = glui->add_spinner("Direction X",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t2Spinner->set_int_limits( 0, 10, GLUI_LIMIT_CLAMP );	
+			wDxSpinnerCtrl[i] = t2Spinner;
+
+		GLUI_Spinner *t3Spinner = glui->add_spinner("Direction Y",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t3Spinner->set_int_limits( 0, 10, GLUI_LIMIT_CLAMP );	
+			wDySpinnerCtrl[i] = t3Spinner;
+
+		GLUI_Spinner *t4Spinner = glui->add_spinner("Speed",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t4Spinner->set_int_limits( 0, 10, GLUI_LIMIT_CLAMP );	
+			wSpeedSpinnerCtrl[i] = t4Spinner;
+
+		GLUI_Spinner *t5Spinner = glui->add_spinner("Wave Length",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t5Spinner->set_int_limits( 0, 10, GLUI_LIMIT_CLAMP );	
+			wWlSpinnerCtrl[i] = t5Spinner;
+	}
+
 
 	/* We register the idle callback with GLUI, *not* with GLUT */
 	GLUI_Master.set_glutIdleFunc(idleFunc);

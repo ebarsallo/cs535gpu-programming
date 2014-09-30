@@ -3,13 +3,17 @@ uniform sampler2D texUnit;
 
 uniform float time;
 
-const float PI = 3.14159265358979323846264;
+//const float PI = 3.14159265358979323846264;
+const float PI = 3.1415;
 
-// Sin params
+// Sine params
 uniform float gAi[10];
 uniform float gDx[10];
 uniform float gDy[10];
 uniform float gwl[10];
+uniform float gSp[10];
+
+uniform int wSize;
 
 /**
  * Initialize the image.
@@ -39,7 +43,7 @@ void grayScottReact()
 	const float offset = 1.0 / 512.0;
 	
 	vec2 texCoord = gl_TexCoord[0].xy;
-
+	
 	// parameters for Gray-Scott model
 	float F = 0.037;
 	float K = 0.06;
@@ -71,36 +75,36 @@ float sineWave(int i, vec2 vxy)
 {
 	//vec2 texCoord = gl_TexCoord[0].xy;
 
-	float Ai = gAi[i];	// amplitude
-	float Dx = gDx[i];	// direction 
-	float Dy = gDy[i];	// direction 
-	float l  = gwl[i];	// wavelength
-	float s  = 1.0;		// speed
+	float Ai = gAi[i];	 // amplitude
+	float Dx = gDx[i];	 // direction 
+	float Dy = gDy[i];	 // direction 
+	float l  = gwl[i];	 // wavelength
+	float s  = gSp[i];	 // speed
 	
-	float w  = 2*PI/l;	// frequency
-	float t  = 1.0;		// time
+	float w  = 2.0*PI/l; // frequency
+	float t  = 1.0;		 // time
 
-	float theta;		// angle of vector form by x,y point
-	float phi = s*w;	// phase
+	float theta;		 // angle of vector form by x,y point
+	float phi = s;		 // phase
 
-	float h;			// height of wave
+	float h;			 // height of wave
 
 	// get the colors of the pixels
 	//vec2 c = texture2D(texUnit, texCoord).rb;
-	vec2 c = texture2D(texUnit, vxy).rb;
+	//vec2 c = texture2D(texUnit, vxy).rb;
 
-	float U = c.x;
-	float V = c.y;
-	
+	float u = vxy.x;
+	float v = vxy.y;
+
 	//theta = dot(vec2(cos(Dx),sin(Dy)), vec2(U,V));
-	theta = Dx * Dy;
-	
+	//theta = Dx * Dy;
+
 	//theta = dot(vec2(Dx,Dy), vec2(U,V));
 	//theta = PI / 2;
+	theta = Dx*u + Dy*v;
 
-	h = Ai * sin(theta * w + time * phi);
+	h = Ai * sin(theta * w + time * phi) + Ai; 
 
-	//gl_FragColor = vec4(0.0, 0.0, h, 1.0);
 	return h;
 }
 
@@ -110,14 +114,14 @@ float sineWave(int i, vec2 vxy)
  */
 void sumOfSinesWave()
 {
-	float height=0;
+	float height=0.0;
 
-	for (int i=0;i<4;i++) {
-		height += sineWave(i, gl_TexCoord[0].xy);
+	for (int i=0;i<wSize;i++) {
+		height += sineWave(i, gl_TexCoord[0].xy) / 2;
 	}
 
 	// update the color of this pixel
-	gl_FragColor = vec4(0.0, 0.0, 0.15 + height/5, 1.0);
+	gl_FragColor = vec4(0.0, height*0.25, height, 1.0);
 }
 
 
