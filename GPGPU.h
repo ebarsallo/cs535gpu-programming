@@ -9,10 +9,10 @@
 
 // Params
 static GLfloat sinParamAmplitude[] = {1, 0.8, 0.6, 0.75};
-static GLfloat sinParamDx[] = {1, 0, 1.25, 1};
-static GLfloat sinParamDy[] = {0, 1, 1.25, 1};
-static GLfloat sinParamWaveLength[] = {0.05, 0.075, 0.5, 1};
-static GLfloat sinParamSpeed[] = {0.01, 0.02, 0.5, 1};
+static GLfloat sinParamDx[] = {1, 0, 0.5, -0.5};
+static GLfloat sinParamDy[] = {0, 1, 0.5, -0.5};
+static GLfloat sinParamWaveLength[] = {0.05, 0.075, 0.05, 0.02};
+static GLfloat sinParamSpeed[] = {0.01, 0.02, 0.025, 0.01};
 
 class GPGPU
 {

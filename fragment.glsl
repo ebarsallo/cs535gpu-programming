@@ -89,18 +89,10 @@ float sineWave(int i, vec2 vxy)
 
 	float h;			 // height of wave
 
-	// get the colors of the pixels
-	//vec2 c = texture2D(texUnit, texCoord).rb;
-	//vec2 c = texture2D(texUnit, vxy).rb;
-
+	// (x,y)
 	float u = vxy.x;
 	float v = vxy.y;
 
-	//theta = dot(vec2(cos(Dx),sin(Dy)), vec2(U,V));
-	//theta = Dx * Dy;
-
-	//theta = dot(vec2(Dx,Dy), vec2(U,V));
-	//theta = PI / 2;
 	theta = Dx*u + Dy*v;
 
 	h = Ai * sin(theta * w + time * phi) + Ai; 
@@ -131,7 +123,5 @@ void main()
 		init();
 	} else {
 		sumOfSinesWave();
-		//sineWave();
-		//grayScottReact();
 	}
 }

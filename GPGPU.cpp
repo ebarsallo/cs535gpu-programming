@@ -102,7 +102,7 @@ void GPGPU::update()
 	_sinParamSpLoc = glGetUniformLocation(_programId, "gSp");
 	glUniform1fv(_sinParamSpLoc, 4, sinParamSpeed);
 
-	glUniform1i(_wSizeLoc, 1);
+	glUniform1i(_wSizeLoc, 4);
 
 //	std::cout << "\r\ntime: " << _currenttime;
 
