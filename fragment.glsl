@@ -13,7 +13,15 @@ uniform float gDy[10];
 uniform float gwl[10];
 uniform float gSp[10];
 
-uniform int wSize;
+uniform int wSize;	// Number of waves
+
+// Island
+struct strIsland{
+	float xy[4];
+	float height[4];
+	float area[4];
+};
+uniform strIsland gIsland[4];
 
 /**
  * Initialize the image.
@@ -68,13 +76,109 @@ void grayScottReact()
 	gl_FragColor = vec4(U + dU, 0.0, V + dV, 1.0);
 }
 
+
+/**
+ * Checks if a number (float) is between a range (min:a & max:b)
+ */
+bool between(float x, float a, float b)
+{
+	if (x >= a && x <= b)
+		return true;
+	return false;
+}
+
+/**
+ * Checks if a point (x,y) lies inside an island.
+ */
+bool insideIsland(strIsland my, float x, float y, float height, out int level)
+{
+	float a, b, c, d, h;
+	float sx, sy;
+	
+	level = 0;
+	
+	a = my.xy[0];	b = my.xy[2];
+	c = my.xy[1];	d = my.xy[3];
+
+	sx = b - a + 0.1;
+	sy = d - c + 0.1;
+	
+	// Point (x,y) does not lies in the island
+	if ( !(between (x, a, b) && 
+		   between (y, c, d)) )
+		return false;
+
+	// Verify if the wave height is over the height of the land.
+	for (int i=3; i>=0; i--) {
+
+		float nx, ny;
+		float na, nb, nc, nd;
+
+		nx = sx * my.area[i];
+		ny = sy * my.area[i];
+		
+		na = a + sx/2.0 - nx/2.0;	nb = na + nx;
+		nc = c + sy/2.0 - ny/2.0;	nd = nc + ny;
+		h  = my.height[i];
+		
+		// check if the point is inside the portion of the land
+		if (between (x, na, nb) && 
+			between (y, nc, nd) &&
+			(h > height)) {
+			level = i;
+			return true;
+		} 
+	}
+
+	return false;
+}
+
+/**
+ * mapColor
+ * Assign a color to the pixel depending of the defining constraint:
+ *  (1) Is the pixel inside an island?
+ */
+vec4 mapColor(float x, float y, float height)
+{
+	strIsland myIsland;
+	vec4 color;
+	int  lw;
+	
+	// Check if the point(x,y) lies inside any of the 4 island
+	// island #1
+	myIsland = gIsland[0];
+	if (insideIsland(myIsland, x, y, height, lw))
+			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+
+	// island #2
+	myIsland = gIsland[1];
+	if (insideIsland(myIsland, x, y, height, lw))
+			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+	
+	// island #3
+	myIsland = gIsland[2];
+	if (insideIsland(myIsland, x, y, height, lw))
+			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+
+	// island #4
+	myIsland = gIsland[3];
+	if (insideIsland(myIsland, x, y, height, lw))
+			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+	
+	// shore of the island
+	if (lw == 1) 
+		color = vec4(0.9, 0.9, 0.9, 1.0);
+	else
+		color = vec4(0.0, height*0.25, 1.0, 1.0);
+
+	return color;
+}
+
 /**
  * Water simulation using sine waves
  */
 float sineWave(int i, vec2 vxy)
 {
-	//vec2 texCoord = gl_TexCoord[0].xy;
-
 	float Ai = gAi[i];	 // amplitude
 	float Dx = gDx[i];	 // direction 
 	float Dy = gDy[i];	 // direction 
@@ -95,9 +199,10 @@ float sineWave(int i, vec2 vxy)
 
 	theta = Dx*u + Dy*v;
 
-	h = Ai * sin(theta * w + time * phi) + Ai; 
-
-	return h;
+	h = Ai * sin(theta * w + time * phi);
+	
+	// normalize the height such that start from 0, instead from -Ai.
+	return h + Ai;
 }
 
 /**
@@ -107,13 +212,15 @@ float sineWave(int i, vec2 vxy)
 void sumOfSinesWave()
 {
 	float height=0.0;
+	vec4 color;
 
 	for (int i=0;i<wSize;i++) {
 		height += sineWave(i, gl_TexCoord[0].xy) / 2;
 	}
 
 	// update the color of this pixel
-	gl_FragColor = vec4(0.0, height*0.25, height, 1.0);
+	color = mapColor(gl_TexCoord[0].xy.x, gl_TexCoord[0].xy.y, height);
+	gl_FragColor = color;
 }
 
 

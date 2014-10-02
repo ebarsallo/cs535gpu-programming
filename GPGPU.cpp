@@ -52,6 +52,14 @@ GPGPU::GPGPU(int w, int h) : _initialized(0), _width(w), _height(h)
 	_timeLoc = glGetUniformLocation(_programId, "time");	
 	_ck_start = std::clock();
 	_wSizeLoc = glGetUniformLocation(_programId, "wSize");
+
+	// gpu: sine params
+	_sinParamALoc  = glGetUniformLocation(_programId, "gAi");
+	_sinParamDxLoc = glGetUniformLocation(_programId, "gDx");
+	_sinParamDyLoc = glGetUniformLocation(_programId, "gDy");
+	_sinParamWlLoc = glGetUniformLocation(_programId, "gwl");
+	_sinParamSpLoc = glGetUniformLocation(_programId, "gSp");
+
 }
 
 /**
@@ -62,8 +70,88 @@ void GPGPU::restart()
 
 	// gpu
 	_ck_start = std::clock();
+	setupSinParams();
+	
 }
 
+/**
+ * Assign a set of floats to an array.
+ */
+void 
+setFloat (GLfloat *arr, float v1, float v2, float v3, float v4)
+{
+	arr[0] = v1;
+	arr[1] = v2;
+	arr[2] = v3;
+	arr[3] = v4;
+}
+
+/**
+ * setupIsland
+ * Arrange island in the 
+ */
+void GPGPU::setupIsland()
+{
+	GLfloat px1, px2, px3, px4;
+	GLfloat py1, py2, py3, py4;
+
+	px1 = 0.1f;	py1 = 0.1f;
+	px2 = 0.6f;	py2 = 0.3f;
+	px3 = 0.3f;	py3 = 0.7f;
+	px4 = 0.7f;	py4 = 0.6f;
+
+	// Island #1
+	island[0].xy[0] = px1;		island[0].xy[2] = px1+0.14f;
+	island[0].xy[1] = py1;		island[0].xy[3] = py1+0.09f;
+	setFloat (island[0].height, 1, 2, 3, 20);
+	setFloat (island[0].area, 0.2, 0.1, 0.1, 0.6);
+
+	// Island #2s
+	island[1].xy[0] = px2;		island[1].xy[2] = px2+0.15f;
+	island[1].xy[1] = py2;		island[1].xy[3] = py2+0.1f;
+	setFloat (island[1].height, 1, 2, 3, 20);
+	setFloat (island[1].area, 0.2, 0.1, 0.3, 0.4);
+
+	// Island #3
+	island[2].xy[0] = px3;		island[2].xy[2] = px3+0.08f;
+	island[2].xy[1] = py3;		island[2].xy[3] = py3+0.12f;
+	setFloat (island[2].height, 1, 1, 3, 20);
+	setFloat (island[2].area, 0.3, 0.1, 0.1, 0.5);
+
+	// Island #4
+	island[3].xy[0] = px4;		island[3].xy[2] = px4+0.12f;
+	island[3].xy[1] = py4;		island[3].xy[3] = py4+0.16f;
+	setFloat (island[3].height, 1, 4, 4, 20);
+	setFloat (island[3].area, 0.2, 0.1, 0.1, 0.6);
+}
+
+void GPGPU::setupSinParams()
+{
+	// Sine params
+	glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
+	glUniform1fv(_sinParamDxLoc, 4, sinParamDx);
+	glUniform1fv(_sinParamDyLoc, 4, sinParamDy);
+	glUniform1fv(_sinParamWlLoc, 4, sinParamWaveLength);
+	glUniform1fv(_sinParamSpLoc, 4, sinParamSpeed);
+
+	glUniform1i(_wSizeLoc, sinNWaves);
+
+	// Islands
+	setupIsland();
+
+	GLfloat myLoc;
+	char fmt[20];
+	for (int i=0; i<4; i++) {
+		sprintf (fmt, "gIsland[%ld].xy", i);		myLoc = glGetUniformLocation(_programId, fmt);	glUniform1fv(myLoc, 4, island[i].xy);
+		sprintf (fmt, "gIsland[%ld].height", i);	myLoc = glGetUniformLocation(_programId, fmt);	glUniform1fv(myLoc, 4, island[i].height);
+		sprintf (fmt, "gIsland[%ld].area", i);		myLoc = glGetUniformLocation(_programId, fmt);	glUniform1fv(myLoc, 4, island[i].area);
+	}
+
+}
+
+/**
+ * update
+ */
 void GPGPU::update()
 {
     // Backup the viewport dimensions
@@ -82,32 +170,14 @@ void GPGPU::update()
 	glUniform1i(_initializedLoc, _initialized);
 	_initialized = 1;
 
-	// gpu: currenttime
+	// gpu: <begin>
+	// currenttime
 	_currenttime = double(std::clock() - _ck_start ) / (double)(CLOCKS_PER_SEC/1000);
 	glUniform1f(_timeLoc, _currenttime);
 
-	// Sine params
-	_sinParamALoc  = glGetUniformLocation(_programId, "gAi");
-	glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
+	setupSinParams();
+	// gpu: <end>
 
-	_sinParamDxLoc = glGetUniformLocation(_programId, "gDx");
-	glUniform1fv(_sinParamDxLoc, 4, sinParamDx);
-
-	_sinParamDyLoc = glGetUniformLocation(_programId, "gDy");
-	glUniform1fv(_sinParamDyLoc, 4, sinParamDy);
-
-	_sinParamWlLoc = glGetUniformLocation(_programId, "gwl");
-	glUniform1fv(_sinParamWlLoc, 4, sinParamWaveLength);
-
-	_sinParamSpLoc = glGetUniformLocation(_programId, "gSp");
-	glUniform1fv(_sinParamSpLoc, 4, sinParamSpeed);
-
-	glUniform1i(_wSizeLoc, 4);
-
-//	std::cout << "\r\ntime: " << _currenttime;
-
-
-           
 	// By drawing a quad, the fragment shader will be called for each pixel.
     glBegin(GL_QUADS);
     {            

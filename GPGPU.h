@@ -14,6 +14,20 @@ static GLfloat sinParamDy[] = {0, 1, 0.5, -0.5};
 static GLfloat sinParamWaveLength[] = {0.05, 0.075, 0.05, 0.02};
 static GLfloat sinParamSpeed[] = {0.01, 0.02, 0.025, 0.01};
 
+static GLint sinNWaves = 4;
+
+// Islands
+struct strIsland{
+	GLfloat xy[4];
+	GLfloat height[4];
+	GLfloat area[4];
+};
+typedef strIsland t_island;
+
+static t_island island[4];
+
+
+
 class GPGPU
 {
 public:
@@ -26,6 +40,8 @@ public:
 
 	// gpu
 	void init();
+	void setupIsland();
+	void setupSinParams();
 
 private:
     int _width;				// width of the screen
@@ -52,5 +68,7 @@ private:
 	double _currenttime;
 
 	GLuint _wSizeLoc;
+
+
 };
 
