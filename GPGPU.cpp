@@ -75,7 +75,7 @@ void GPGPU::restart()
 }
 
 /**
- * Assign a set of floats to an array.
+ * <summary>Assign a set of floats to an array.</summary>
  */
 void 
 setFloat (GLfloat *arr, float v1, float v2, float v3, float v4)
@@ -87,8 +87,7 @@ setFloat (GLfloat *arr, float v1, float v2, float v3, float v4)
 }
 
 /**
- * setupIsland
- * Arrange island in the 
+ * <summary>Arrange island in the scene.</summary>
  */
 void GPGPU::setupIsland()
 {
@@ -101,31 +100,35 @@ void GPGPU::setupIsland()
 	px4 = 0.7f;	py4 = 0.6f;
 
 	// Island #1
-	island[0].xy[0] = px1;		island[0].xy[2] = px1+0.14f;
+	island[0].xy[0] = px1;		island[0].xy[2] = 0.1f;//px1+0.14f;
 	island[0].xy[1] = py1;		island[0].xy[3] = py1+0.09f;
-	setFloat (island[0].height, 1, 2, 3, 20);
-	setFloat (island[0].area, 0.2, 0.1, 0.1, 0.6);
+	setFloat (island[0].height, 1, 2, 5, 20);
+	setFloat (island[0].area, 0.05, 0.05, 0.1, 0.8);
 
 	// Island #2s
 	island[1].xy[0] = px2;		island[1].xy[2] = px2+0.15f;
 	island[1].xy[1] = py2;		island[1].xy[3] = py2+0.1f;
-	setFloat (island[1].height, 1, 2, 3, 20);
-	setFloat (island[1].area, 0.2, 0.1, 0.3, 0.4);
+	setFloat (island[1].height, 1, 3, 5, 20);
+	setFloat (island[1].area, 0.1, 0.1, 0.3, 0.5);
 
 	// Island #3
-	island[2].xy[0] = px3;		island[2].xy[2] = px3+0.08f;
+	island[2].xy[0] = px3;		island[2].xy[2] = 0.06;//px3+0.08f;
 	island[2].xy[1] = py3;		island[2].xy[3] = py3+0.12f;
-	setFloat (island[2].height, 1, 1, 3, 20);
-	setFloat (island[2].area, 0.3, 0.1, 0.1, 0.5);
+	setFloat (island[2].height, 1, 4, 8, 2);
+	setFloat (island[2].area, 0.05, 0.05, 0.2, 0.7);
 
 	// Island #4
 	island[3].xy[0] = px4;		island[3].xy[2] = px4+0.12f;
 	island[3].xy[1] = py4;		island[3].xy[3] = py4+0.16f;
-	setFloat (island[3].height, 1, 4, 4, 20);
-	setFloat (island[3].area, 0.2, 0.1, 0.1, 0.6);
+	setFloat (island[3].height, 1, 3, 6, 20);
+	setFloat (island[3].area, 0.1, 0.1, 0.2, 0.6);
 }
 
-void GPGPU::setupSinParams()
+/**
+ * <summary>Communicate the sines params to the shader.</summary>
+ */
+void 
+GPGPU::setupSinParams()
 {
 	// Sine params
 	glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
@@ -150,7 +153,75 @@ void GPGPU::setupSinParams()
 }
 
 /**
- * update
+ * <summary>Update all sines params used to simulated water</summary>
+ */
+void 
+updateSineParams(GLfloat* arr[]) 
+{
+}
+
+
+/**
+ * <summary>Setter. Set number of waves.</summary>
+ */
+void 
+GPGPU::setSinNWaves(int n)
+{
+	sinNWaves = n;
+}
+
+/**
+ * <summary>Setter. Set altitude of the wave.</summary>
+ */
+void 
+GPGPU::setSinParamAmplitude(float arr[])
+{
+	for (int i=0; i<sinNWaves; i++)
+		sinParamAmplitude[i] = arr[i];
+}
+
+/**
+ * <summary>Setter. Set altitude of the wave.</summary>
+ */
+void 
+GPGPU::setSinParamDx(float arr[])
+{
+	for (int i=0; i<sinNWaves; i++)
+		sinParamDx[i] = arr[i];
+}
+
+/**
+ * <summary>Setter. Set altitude of the wave.</summary>
+ */
+void 
+GPGPU::setSinParamDy(float arr[])
+{
+	for (int i=0; i<sinNWaves; i++)
+		sinParamDy[i] = arr[i];
+}
+
+/**
+ * <summary>Setter. Set altitude of the wave.</summary>
+ */
+void 
+GPGPU::setSinParamWaveLength(float arr[])
+{
+	for (int i=0; i<sinNWaves; i++)
+		sinParamWaveLength[i] = arr[i];
+}
+
+/**
+ * <summary>Setter. Set altitude of the wave.</summary>
+ */
+void 
+GPGPU::setSinParamSpeed(float arr[])
+{
+	for (int i=0; i<sinNWaves; i++)
+		sinParamSpeed[i] = arr[i];
+}
+
+/**
+ * <summary>update</summary>
  */
 void GPGPU::update()
 {

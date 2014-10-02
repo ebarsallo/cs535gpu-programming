@@ -9,10 +9,10 @@
 
 // Params
 static GLfloat sinParamAmplitude[] = {1, 0.8, 0.6, 0.75};
-static GLfloat sinParamDx[] = {1, 0, 0.5, -0.5};
-static GLfloat sinParamDy[] = {0, 1, 0.5, -0.5};
+static GLfloat sinParamDx[] = {1, 1, 0.5, -0.5};
+static GLfloat sinParamDy[] = {0, 0.1, 0.5, -0.5};
 static GLfloat sinParamWaveLength[] = {0.05, 0.075, 0.05, 0.02};
-static GLfloat sinParamSpeed[] = {0.01, 0.02, 0.025, 0.01};
+static GLfloat sinParamSpeed[] = {0.01, 0.025, 0.025, 0.01};
 
 static GLint sinNWaves = 4;
 
@@ -39,9 +39,16 @@ public:
 	int loadShader(char* filename, std::string& text);
 
 	// gpu
-	void init();
-	void setupIsland();
-	void setupSinParams();
+	void updateSineParams(GLfloat* arr[]);
+
+	// gpu: setter
+	void setSinNWaves(int n);
+	void setSinParamAmplitude(float arr[]);
+	void setSinParamDx(float arr[]);
+	void setSinParamDy(float arr[]);
+	void setSinParamWaveLength(float arr[]);
+	void setSinParamSpeed(float arr[]);
+
 
 private:
     int _width;				// width of the screen
@@ -69,6 +76,10 @@ private:
 
 	GLuint _wSizeLoc;
 
+
+	void init();
+	void setupIsland();
+	void setupSinParams();
 
 };
 
