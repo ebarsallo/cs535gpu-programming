@@ -31,8 +31,10 @@ std::vector<GLUI_Spinner*> gwSpeedSpinnerCtrl;
 std::vector<GLUI_Spinner*> gwWlSpinnerCtrl;
 
 GLUI_Spinner* gwNWaves;
+GLUI_Listbox* gwlbTWaves;
 
-static int gcWaves = 4;
+static int gcWaves = 8;
+static int gtWaves = 0;
 
 
 /*****************************************************************************
@@ -177,9 +179,18 @@ GUICallbackHandler(int objID)
 {
 	switch (objID) {
 
+	// Update type of waves
+	case 10:
+		gtWaves = gwlbTWaves->get_int_val();
+		gpgpu->setSinTWaves(gtWaves);
+		refreshCB();
+		break;
+
+	// Update number of waves
 	case 20:
-		//sinNWaves = gwNWaves->get_int_val();
-		gpgpu->setSinNWaves(gwNWaves->get_int_val());
+		gcWaves = gwNWaves->get_int_val();
+		gpgpu->setSinNWaves(gcWaves);
+		refreshCB();
 		break;
 
 	// Update sine params
@@ -199,7 +210,9 @@ GUICallbackHandler(int objID)
 		gpgpu->setSinParamSpeed(t4);
 		gpgpu->setSinParamWaveLength(t5);
 
+		refreshCB();
 		break;
+
 	default:
 		break;
 	}
@@ -226,6 +239,10 @@ void MakeGUI()
 {
 	glui = GLUI_Master.create_glui("GUI", 0, winWidth+30, 0);
 	glui->add_statictext("Assignment #3");
+	glui->add_statictext("GPU Programming");
+	glui->add_statictext("");
+	glui->add_statictext("Water simulation using");
+	glui->add_statictext("Sine wave summation.");
 
 	glui->add_separator();
 
@@ -233,42 +250,50 @@ void MakeGUI()
 
 	// gpu
 	int count = gcWaves;
+
 	gwAmpSpinnerCtrl.resize(count);
 	gwDxSpinnerCtrl.resize(count);
 	gwDySpinnerCtrl.resize(count);
 	gwSpeedSpinnerCtrl.resize(count);
 	gwWlSpinnerCtrl.resize(count);
 
+	gwlbTWaves = glui->add_listbox("Type of Wave:",&gtWaves, 10, GUICallbackHandler);
+		gwlbTWaves->add_item(0, "Directional");
+		gwlbTWaves->add_item(1, "Circular");
+
+
 	gwNWaves = glui->add_spinner("# Waves:",GLUI_SPINNER_INT, NULL, 20, GUICallbackHandler );
-			gwNWaves->set_int_limits( 1, 4, GLUI_LIMIT_CLAMP );	
+			gwNWaves->set_int_limits( 1, 8, GLUI_LIMIT_CLAMP );	
 	glui->add_separator();
 
 	char label[10];
 	for (int i=0; i<count; i++) {
 		
+		if (i%4==0) glui->add_column();
+
 		sprintf (label, "Wave #%ld", i+1);
 		//glui->add_statictext (label);
 		GLUI_Panel *tPanel = glui->add_panel( label );
 
-		GLUI_Spinner *t1Spinner = glui->add_spinner_to_panel(tPanel, "Amplitude",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+		GLUI_Spinner *t1Spinner = glui->add_spinner_to_panel(tPanel, "Amplitude:",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
 			t1Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
 			gwAmpSpinnerCtrl[i] = t1Spinner;
 
-		GLUI_Spinner *t5Spinner = glui->add_spinner_to_panel(tPanel, "Wave Length",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
-			t5Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
-			gwWlSpinnerCtrl[i] = t5Spinner;
+		GLUI_Spinner *t4Spinner = glui->add_spinner_to_panel(tPanel, "Speed: ",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t4Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
+			gwSpeedSpinnerCtrl[i] = t4Spinner;
 
-		GLUI_Spinner *t2Spinner = glui->add_spinner_to_panel(tPanel, "Direction X",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+		GLUI_Spinner *t2Spinner = glui->add_spinner_to_panel(tPanel, "Direction X:",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
 			t2Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
 			gwDxSpinnerCtrl[i] = t2Spinner;
 
-		GLUI_Spinner *t3Spinner = glui->add_spinner_to_panel(tPanel, "Direction Y",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+		GLUI_Spinner *t3Spinner = glui->add_spinner_to_panel(tPanel, "Direction Y:",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
 			t3Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
 			gwDySpinnerCtrl[i] = t3Spinner;
 
-		GLUI_Spinner *t4Spinner = glui->add_spinner_to_panel(tPanel, "Speed",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
-			t4Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
-			gwSpeedSpinnerCtrl[i] = t4Spinner;
+		GLUI_Spinner *t5Spinner = glui->add_spinner_to_panel(tPanel, "Wave Length:",GLUI_SPINNER_FLOAT, NULL, 30, GUICallbackHandler );
+			t5Spinner->set_int_limits( -1, 1, GLUI_LIMIT_CLAMP );	
+			gwWlSpinnerCtrl[i] = t5Spinner;
 	}
 
 	/* We register the idle callback with GLUI, *not* with GLUT */

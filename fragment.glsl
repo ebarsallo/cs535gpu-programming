@@ -3,8 +3,7 @@ uniform sampler2D texUnit;
 
 uniform float time;
 
-//const float PI = 3.14159265358979323846264;
-const float PI = 3.1415;
+const float PI = 3.14159;
 
 // Sine params
 uniform float gAi[10];
@@ -12,8 +11,11 @@ uniform float gDx[10];
 uniform float gDy[10];
 uniform float gwl[10];
 uniform float gSp[10];
+uniform float gCx[10];
+uniform float gCy[10];
 
 uniform int wSize;	// Number of waves
+uniform int wType;	// Type of Wave (0: Directional, 1: Circular)
 
 // Island
 struct strIsland{
@@ -87,6 +89,9 @@ bool between(float x, float a, float b)
 	return false;
 }
 
+/**
+ * <summary>Checks if a point (x,y) is inside a circle.</summary>
+ */
 bool insideCircle(float x, float y, float cx, float cy, float r)
 {
 	float d = sqrt (pow(cx-x, 2) + pow(cy-y, 2));
@@ -94,11 +99,21 @@ bool insideCircle(float x, float y, float cx, float cy, float r)
 }
 
 /**
- * Checks if a point (x,y) lies inside an circular shape island.
+ * <summary>Checks if a point (x,y) is inside a circle area delimited by two distance (radio).</summary>
+ */
+bool insideCircleArea(float x, float y, float cx, float cy, float r1, float r2)
+{
+	float d = sqrt (pow(cx-x, 2) + pow(cy-y, 2));
+	return (d >= r1) && (d <= r2);
+}
+
+/**
+ * <summary>Checks if a point (x,y) lies inside an circular shape island.</summary>
  */
 bool insideIslandCirc(strIsland my, float x, float y, float height, out int level)
 {
 	float cx, cy, h, r;
+	bool bflag = false;
 
 	level = -1;
 	
@@ -110,23 +125,24 @@ bool insideIslandCirc(strIsland my, float x, float y, float height, out int leve
 		return false;
 
 	// Verify if the wave height is over the height of the land.
-	float p = 0; 
-	for (int i=3; i>=0; i--) {
-		float nr;
-		
+	float p = 1; 
+	float r1, r2 = r;
+	for (int i=0; i<4; i++) {
+
 		h  = my.height[i];
-		p += my.area[i];
-		nr = r * p;
+		p -= my.area[i];
+		r1 = r * p;
 		
+		bflag = (bflag || (h > height));
+
+		level = i;
 		// check if the point is inside the portion of the land
-		if ((insideCircle (x, y, cx, cy, nr)) &&
-			(h > height)) {
-			level = i;
-			return true;
+		if (insideCircleArea (x, y, cx, cy, r1, r2)) {
+			return bflag;
 		} 
+		r2 = r1;
 	}
 	
-	level = 0;
 	return false;
 }
 
@@ -166,16 +182,15 @@ bool insideIslandQuad(strIsland my, float x, float y, float height, out int leve
 		nc = c + sy/2.0 - ny/2.0;	nd = nc + ny;
 		h  = my.height[i];
 		
+		level = i;
 		// check if the point is inside the portion of the land
 		if (between (x, na, nb) && 
 			between (y, nc, nd) &&
 			(h > height)) {
-			level = i;
 			return true;
 		} 
 	}
 
-	level = 0;
 	return false;
 }
 
@@ -194,22 +209,22 @@ vec4 mapColor(float x, float y, float height)
 	// island #1
 	myIsland = gIsland[0];
 	if (insideIslandCirc(myIsland, x, y, height, lw))
-			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+			return vec4(1, 0.70-lw*0.11, 0.0, 1.0);
 
 	// island #2
 	myIsland = gIsland[1];
-	if (insideIslandQuad(myIsland, x, y, height, lw))
-			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+	if (insideIslandCirc(myIsland, x, y, height, lw))
+			return vec4(1, 0.70-lw*0.11, 0.0, 1.0);
 	
 	// island #3
 	myIsland = gIsland[2];
 	if (insideIslandCirc(myIsland, x, y, height, lw))
-			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+			return vec4(1, 0.70-lw*0.11, 0.0, 1.0);
 
 	// island #4
 	myIsland = gIsland[3];
-	if (insideIslandQuad(myIsland, x, y, height, lw))
-			return vec4(1, 0.80-lw*0.11, 0.0, 1.0);
+	if (insideIslandCirc(myIsland, x, y, height, lw))
+			return vec4(1, 0.70-lw*0.11, 0.0, 1.0);
 	
 	// shore of the island
 	if (lw == 0) 
@@ -243,7 +258,15 @@ float sineWave(int i, vec2 vxy)
 	float u = vxy.x;
 	float v = vxy.y;
 
-	theta = Dx*u + Dy*v;
+	if (wType == 0) {
+		// Directional Wave
+		theta = Dx*u + Dy*v;
+	} else {
+		// Circular Wave Test
+		float du = u-gCx[i];
+		float dv = v-gCy[i];
+		theta = dot (vec2(-dv, du), vec2(dv, -du));
+	}
 
 	h = Ai * sin(theta * w + time * phi);
 	

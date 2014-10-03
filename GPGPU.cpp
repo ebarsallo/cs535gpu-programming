@@ -52,6 +52,7 @@ GPGPU::GPGPU(int w, int h) : _initialized(0), _width(w), _height(h)
 	_timeLoc = glGetUniformLocation(_programId, "time");	
 	_ck_start = std::clock();
 	_wSizeLoc = glGetUniformLocation(_programId, "wSize");
+	_wTypeLoc = glGetUniformLocation(_programId, "wType");
 
 	// gpu: sine params
 	_sinParamALoc  = glGetUniformLocation(_programId, "gAi");
@@ -60,9 +61,17 @@ GPGPU::GPGPU(int w, int h) : _initialized(0), _width(w), _height(h)
 	_sinParamWlLoc = glGetUniformLocation(_programId, "gwl");
 	_sinParamSpLoc = glGetUniformLocation(_programId, "gSp");
 
+	_sinParamCxLoc = glGetUniformLocation(_programId, "gCx");
+	_sinParamCyLoc = glGetUniformLocation(_programId, "gCy");
+
+	// gpu: config islands
+	setupIsland();
+
+
 }
 
 /**
+ * <summary>Restart geometries.</summary>
  */
 void GPGPU::restart()
 {
@@ -71,6 +80,8 @@ void GPGPU::restart()
 	// gpu
 	_ck_start = std::clock();
 	setupSinParams();
+	setupIsland();
+
 	
 }
 
@@ -87,41 +98,41 @@ setFloat (GLfloat *arr, float v1, float v2, float v3, float v4)
 }
 
 /**
- * <summary>Arrange island in the scene.</summary>
+ * <summary>Arrange island in the scene.
+ * The window is divided in 4 imaginary quadrant. In order to avoid collision between island, each quadrant will have only
+ * one island.</summary>
  */
 void GPGPU::setupIsland()
 {
 	GLfloat px1, px2, px3, px4;
 	GLfloat py1, py2, py3, py4;
 
-	px1 = 0.1f;	py1 = 0.1f;
-	px2 = 0.6f;	py2 = 0.3f;
-	px3 = 0.3f;	py3 = 0.7f;
-	px4 = 0.7f;	py4 = 0.6f;
+	srand (time (NULL));	
+	px1 = (float) (rand() % 35) / 100;			py1 = (float) (rand() % 35) / 100;
+	px2 = 0.5f + (float) (rand() % 35) / 100;	py2 = (float) (rand() % 35) / 100;
+	px3 = (float) (rand() % 35) / 100;			py3 = 0.5f + (float) (rand() % 35) / 100;
+	px4 = 0.5f + (float) (rand() % 35) / 100;	py4 = 0.5f + (float) (rand() % 35) / 100;
+
 
 	// Island #1
-	island[0].xy[0] = px1;		island[0].xy[2] = 0.1f;//px1+0.14f;
-	island[0].xy[1] = py1;		island[0].xy[3] = py1+0.09f;
+	island[0].xy[0] = px1;		island[0].xy[1] = py1;		island[0].xy[2] = 0.1f;
 	setFloat (island[0].height, 1, 2, 5, 20);
 	setFloat (island[0].area, 0.05, 0.05, 0.1, 0.8);
 
 	// Island #2s
-	island[1].xy[0] = px2;		island[1].xy[2] = px2+0.15f;
-	island[1].xy[1] = py2;		island[1].xy[3] = py2+0.1f;
+	island[1].xy[0] = px2;		island[1].xy[1] = py2;		island[1].xy[2] = 0.086f;
 	setFloat (island[1].height, 1, 3, 5, 20);
 	setFloat (island[1].area, 0.1, 0.1, 0.3, 0.5);
 
 	// Island #3
-	island[2].xy[0] = px3;		island[2].xy[2] = 0.06;//px3+0.08f;
-	island[2].xy[1] = py3;		island[2].xy[3] = py3+0.12f;
+	island[2].xy[0] = px3;		island[2].xy[1] = py3;		island[2].xy[2] = 0.125f;	
 	setFloat (island[2].height, 1, 4, 8, 2);
 	setFloat (island[2].area, 0.05, 0.05, 0.2, 0.7);
 
 	// Island #4
-	island[3].xy[0] = px4;		island[3].xy[2] = px4+0.12f;
-	island[3].xy[1] = py4;		island[3].xy[3] = py4+0.16f;
+	island[3].xy[0] = px4;		island[3].xy[1] = py4;		island[3].xy[2] = 0.06f;
 	setFloat (island[3].height, 1, 3, 6, 20);
-	setFloat (island[3].area, 0.1, 0.1, 0.2, 0.6);
+	setFloat (island[3].area, 0.05, 0.1, 0.25, 0.6);
 }
 
 /**
@@ -131,16 +142,17 @@ void
 GPGPU::setupSinParams()
 {
 	// Sine params
-	glUniform1fv(_sinParamALoc, 4, sinParamAmplitude);
-	glUniform1fv(_sinParamDxLoc, 4, sinParamDx);
-	glUniform1fv(_sinParamDyLoc, 4, sinParamDy);
-	glUniform1fv(_sinParamWlLoc, 4, sinParamWaveLength);
-	glUniform1fv(_sinParamSpLoc, 4, sinParamSpeed);
+	glUniform1fv(_sinParamALoc,  10, sinParamAmplitude);
+	glUniform1fv(_sinParamDxLoc, 10, sinParamDx);
+	glUniform1fv(_sinParamDyLoc, 10, sinParamDy);
+	glUniform1fv(_sinParamWlLoc, 10, sinParamWaveLength);
+	glUniform1fv(_sinParamSpLoc, 10, sinParamSpeed);
+
+	glUniform1fv(_sinParamCxLoc, 10, sinParamCenterX);
+	glUniform1fv(_sinParamCyLoc, 10, sinParamCenterY);
 
 	glUniform1i(_wSizeLoc, sinNWaves);
-
-	// Islands
-	setupIsland();
+	glUniform1i(_wTypeLoc, sinTWaves);
 
 	GLfloat myLoc;
 	char fmt[20];
@@ -168,6 +180,15 @@ void
 GPGPU::setSinNWaves(int n)
 {
 	sinNWaves = n;
+}
+
+/**
+ * <summary>Setter. Set number of waves.</summary>
+ */
+void 
+GPGPU::setSinTWaves(int n)
+{
+	sinTWaves = n;
 }
 
 /**
