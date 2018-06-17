@@ -1,4 +1,2 @@
-cs535 GPU-Programming
-====================
-
-Assignment #3
+## GPU-Programming
+GPU Programming Example
